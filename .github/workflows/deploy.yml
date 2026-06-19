@@ -1,7 +1,10 @@
 # Publica o site automaticamente no GitHub Pages a cada push.
 # O site é estático (HTML/CSS/JS), então não há etapa de build: apenas
-# empacotamos os arquivos e publicamos. O passo "configure-pages" com
-# enablement: true LIGA o GitHub Pages sozinho na primeira vez.
+# empacotamos os arquivos e publicamos.
+#
+# PASSO ÚNICO (só precisa fazer uma vez): no GitHub, vá em
+#   Settings  ->  Pages  ->  Build and deployment  ->  Source
+# e selecione "GitHub Actions". Depois disso, todo push publica sozinho.
 name: Publicar site (GitHub Pages)
 
 on:
@@ -29,10 +32,8 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
 
-      - name: Configurar o GitHub Pages (liga automaticamente)
+      - name: Configurar o GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Empacotar os arquivos do site
         uses: actions/upload-pages-artifact@v3
