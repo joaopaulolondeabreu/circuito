@@ -1,0 +1,44 @@
+# Publica o site automaticamente no GitHub Pages a cada push.
+# O site é estático (HTML/CSS/JS), então não há etapa de build: apenas
+# empacotamos os arquivos e publicamos. O passo "configure-pages" com
+# enablement: true LIGA o GitHub Pages sozinho na primeira vez.
+name: Publicar site (GitHub Pages)
+
+on:
+  push:
+    branches: ["claude/quirky-mendel-vjky3p", "main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Garante que só uma publicação rode por vez.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar o GitHub Pages (liga automaticamente)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Empacotar os arquivos do site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

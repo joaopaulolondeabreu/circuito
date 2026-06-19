@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Simulador de Circuitos — ITA</title>
+<meta name="description" content="Simulador interativo de circuitos elétricos para estudo do vestibular do ITA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">⏚</div>
+      <div>
+        <h1>Simulador de Circuitos</h1>
+        <p>Construído para o vestibular do ITA</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="btnTogglePalette" style="display:none;">Componentes</button>
+      <button class="btn" id="btnCalc">🧮 Calculadora avulsa</button>
+      <button class="btn" id="btnHelp">❓ Como usar</button>
+      <button class="btn" id="btnToggleInspector" style="display:none;">Inspetor</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <aside class="palette" id="palette">
+      <h2>Componentes</h2>
+      <button class="comp-btn" data-type="resistor" data-mode="direct">
+        <span class="icon"><svg viewBox="0 0 60 30"><path d="M2 15 H16 L21 5 L31 25 L41 5 L46 15 H58" stroke="currentColor" stroke-width="2.4" fill="none"/></svg></span>
+        <span>Resistor<small>valor R direto</small></span>
+      </button>
+      <button class="comp-btn" data-type="wireIdeal">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Fio ideal<small>resistência nula</small></span>
+      </button>
+      <button class="comp-btn" data-type="resistor" data-mode="geom">
+        <span class="icon"><svg viewBox="0 0 60 30"><rect x="10" y="8" width="40" height="14" rx="7" stroke="currentColor" stroke-width="2.2" fill="none"/><line x1="2" y1="15" x2="10" y2="15" stroke="currentColor" stroke-width="2.4"/><line x1="50" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Fio real<small>ρ, L, A → calcula R</small></span>
+      </button>
+      <button class="comp-btn" data-type="source" data-kind="gerador">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="24" y2="15" stroke="currentColor" stroke-width="2.4"/><line x1="24" y1="4" x2="24" y2="26" stroke="currentColor" stroke-width="2.6"/><line x1="36" y1="9" x2="36" y2="21" stroke="currentColor" stroke-width="5"/><line x1="36" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Gerador<small>FEM ε, resist. interna r</small></span>
+      </button>
+      <button class="comp-btn" data-type="source" data-kind="receptor">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="2.4"/><circle cx="30" cy="15" r="11" stroke="currentColor" stroke-width="2.2" fill="none"/><text x="30" y="19" text-anchor="middle" font-size="12" fill="currentColor" font-family="JetBrains Mono">M</text><line x1="46" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Receptor<small>FCEM ε′, resist. interna r</small></span>
+      </button>
+      <hr>
+      <button class="comp-btn" data-type="capacitor">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="26" y2="15" stroke="currentColor" stroke-width="2.4"/><line x1="26" y1="4" x2="26" y2="26" stroke="currentColor" stroke-width="2.6"/><line x1="34" y1="4" x2="34" y2="26" stroke="currentColor" stroke-width="2.6"/><line x1="34" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Capacitor<small>C, carga e τ = RC</small></span>
+      </button>
+      <button class="comp-btn" data-type="inductor">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="2.4"/><path d="M14 15 a5 5 0 0 1 10 0 a5 5 0 0 1 10 0 a5 5 0 0 1 10 0 a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="2.2" fill="none"/><line x1="54" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Indutor<small>L, energia e τ = L/R</small></span>
+      </button>
+      <button class="comp-btn" data-type="voltmeter">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="2.4"/><circle cx="30" cy="15" r="12" stroke="currentColor" stroke-width="2.2" fill="none"/><text x="30" y="19" text-anchor="middle" font-size="12" fill="currentColor" font-family="JetBrains Mono">V</text><line x1="44" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Voltímetro<small>ideal ou com resistência</small></span>
+      </button>
+      <button class="comp-btn" data-type="ammeter">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="2.4"/><circle cx="30" cy="15" r="12" stroke="currentColor" stroke-width="2.2" fill="none"/><text x="30" y="19" text-anchor="middle" font-size="12" fill="currentColor" font-family="JetBrains Mono">A</text><line x1="44" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Amperímetro<small>ideal ou com resistência</small></span>
+      </button>
+      <button class="comp-btn" data-type="galvanometer">
+        <span class="icon"><svg viewBox="0 0 60 30"><line x1="2" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="2.4"/><circle cx="30" cy="15" r="12" stroke="currentColor" stroke-width="2.2" fill="none"/><text x="30" y="19" text-anchor="middle" font-size="12" fill="currentColor" font-family="JetBrains Mono">G</text><line x1="44" y1="15" x2="58" y2="15" stroke="currentColor" stroke-width="2.4"/></svg></span>
+        <span>Galvanômetro<small>bobina com resistência</small></span>
+      </button>
+      <hr>
+      <button class="comp-btn" id="btnSelectMode">
+        <span class="icon"><svg viewBox="0 0 60 30"><path d="M14 6 L14 24 L19 19 L23 26 L27 24 L23 17 L30 17 Z" stroke="currentColor" stroke-width="1.8" fill="currentColor" fill-opacity=".15"/></svg></span>
+        <span>Selecionar / mover<small>esc para cancelar</small></span>
+      </button>
+      <button class="btn full danger-outline" id="btnDeleteSelected" style="margin-top:6px;" disabled>Excluir selecionado</button>
+    </aside>
+
+    <main class="canvas-area">
+      <div class="toolbar">
+        <button class="btn primary" id="btnSolve">▶ Resolver circuito</button>
+        <button class="btn" id="btnUndo">↶ Desfazer</button>
+        <button class="btn" id="btnClear">🗑 Limpar tudo</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnSave">💾 Salvar</button>
+        <label class="btn file-btn">📂 Abrir<input type="file" id="fileOpen" accept=".json" hidden></label>
+      </div>
+      <div class="canvas-scroll" id="canvasScroll">
+        <svg id="svgCanvas" width="2600" height="1500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="gridSmall" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--grid-line)" stroke-width="1"/>
+            </pattern>
+            <pattern id="gridBig" width="100" height="100" patternUnits="userSpaceOnUse">
+              <rect width="100" height="100" fill="url(#gridSmall)"/>
+              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="var(--grid-line-strong)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="2600" height="1500" fill="url(#gridBig)"/>
+          <g id="wiresPreviewLayer"></g>
+          <g id="componentsLayer"></g>
+          <g id="labelsLayer"></g>
+          <g id="resultsLayer"></g>
+          <g id="nodesLayer"></g>
+        </svg>
+        <div id="hintBar"><span class="dot"></span><span id="hintText"></span></div>
+        <div id="toast"></div>
+      </div>
+      <div class="summary-bar" id="summaryBar"><span class="empty">Monte seu circuito e clique em "Resolver circuito".</span></div>
+    </main>
+
+    <aside class="inspector" id="inspector">
+      <h2>Inspetor</h2>
+      <div id="inspectorEmpty">Clique em um componente já posicionado no quadro para ver e editar seus dados aqui.<br><br><b>Dica:</b> comece escolhendo um componente na barra à esquerda e clique em dois pontos do quadro para posicioná-lo.</div>
+      <div id="inspectorContent" style="display:none;"></div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>Como usar o simulador</h2>
+        <p>Monte o circuito, preencha os valores e clique em “Resolver”.</p>
+      </div>
+      <button class="modal-close" id="closeHelp">✕</button>
+    </div>
+    <div class="help-step"><div class="num">1</div><p>Na barra esquerda, clique no <b>tipo de componente</b> que você quer adicionar (resistor, fio, gerador, capacitor...).</p></div>
+    <div class="help-step"><div class="num">2</div><p>Clique em <b>dois pontos</b> do quadro: o primeiro e o segundo terminal do componente. Terminais no mesmo ponto se conectam automaticamente — é assim que você cria nós (junções) e monta série, paralelo ou misto.</p></div>
+    <div class="help-step"><div class="num">3</div><p>Clique em <b>“Selecionar / mover”</b> para sair do modo de posicionar. Aí você pode clicar num componente para <b>editar seus valores</b> no Inspetor (à direita) ou arrastar os <b>nós</b> para reorganizar.</p></div>
+    <div class="help-step"><div class="num">4</div><p>Com tudo preenchido, clique em <b>“Resolver circuito”</b>. O simulador calcula ddp, corrente, potência, resistência equivalente, carga de capacitores e constante de tempo, para qualquer associação.</p></div>
+    <div class="help-step"><div class="num">5</div><p>Se a questão te der só valores soltos de um componente, use a <b>🧮 Calculadora avulsa</b> no topo: digite o que souber e ela deduz o resto, mostrando as fórmulas.</p></div>
+    <div class="help-step"><div class="num">6</div><p>Atalhos: <span class="kbd">Delete</span> exclui o selecionado · <span class="kbd">Esc</span> cancela o posicionamento · <span class="kbd">Ctrl+Z</span> desfaz. Nos campos você pode usar prefixos: <span class="kbd">1u</span> = 1 µF, <span class="kbd">4k7</span> = 4700 Ω.</p></div>
+    <button class="btn primary full" id="closeHelp2" style="margin-top:8px;">Entendi, vamos lá</button>
+  </div>
+</div>
+
+<!-- Calculator modal -->
+<div class="modal-backdrop" id="calcModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-head">
+      <div>
+        <h2>Calculadora avulsa</h2>
+        <p>Preencha o que a questão te der — o resto é calculado automaticamente</p>
+      </div>
+      <button class="modal-close" id="closeCalc">✕</button>
+    </div>
+    <div class="calc-tabs">
+      <button class="calc-tab active" data-tab="resistor">Resistor / Fio</button>
+      <button class="calc-tab" data-tab="source">Gerador / Receptor</button>
+    </div>
+    <div id="calcResistorPane"></div>
+    <div id="calcSourcePane" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="js/solver.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/components.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

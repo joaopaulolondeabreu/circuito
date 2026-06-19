@@ -1,0 +1,9 @@
+{
+  "name": "simulador-circuitos-ita",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simulador de circuitos elétricos para o vestibular do ITA",
+  "scripts": {
+    "test": "node tests/engine.test.js && node tests/ui.test.js"
+  }
+}
