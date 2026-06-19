@@ -4,6 +4,6 @@
   "private": true,
   "description": "Simulador de circuitos elétricos para o vestibular do ITA",
   "scripts": {
-    "test": "node tests/engine.test.js && node tests/ui.test.js"
+    "test": "node tests/engine.test.js && node tests/symbolic.test.js && node tests/ui.test.js"
   }
 }

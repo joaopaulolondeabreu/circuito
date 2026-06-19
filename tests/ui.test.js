@@ -21,7 +21,7 @@ var window = dom.window;
 var document = window.document;
 
 // Carrega os módulos na ordem do index.html.
-['js/solver.js', 'js/engine.js', 'js/components.js', 'js/calculator.js', 'js/ui.js', 'js/app.js']
+['js/solver.js', 'js/engine.js', 'js/components.js', 'js/symbolic.js', 'js/calculator.js', 'js/ui.js', 'js/app.js']
   .forEach(function (f) { window.eval(fs.readFileSync(path.join(root, f), 'utf8')); });
 
 var CS = window.CS;
@@ -77,6 +77,15 @@ setField(srcPane, 'emf', '10'); setField(srcPane, 'r', '1'); setField(srcPane, '
 srcPane.querySelector('[data-role="calc"]').dispatchEvent(new window.Event('click'));
 var Uval = window.CS.parseEng(srcPane.querySelector('input[data-key="U"]').value);
 ok('calculadora U = ε − rI = 8V', approx(Uval, 8));
+
+// --- calculadora SIMBÓLICA: R = R1 (incógnita), I = 3 → U = 3·R1 ----------
+resPane.querySelector('[data-role="clear"]').dispatchEvent(new window.Event('click'));
+setField(resPane, 'R', 'R1');
+setField(resPane, 'I', '3');
+resPane.querySelector('[data-role="calc"]').dispatchEvent(new window.Event('click'));
+var Vsym = resPane.querySelector('input[data-key="V"]').value;
+ok('calculadora simbólica U = 3·R1', Vsym.replace(/\s/g, '') === '3·R1');
+ok('campo V marcado como derivado', resPane.querySelector('.calc-field[data-key="V"]').className.indexOf('derived') >= 0);
 
 console.log('\n=====================================');
 console.log('  UI: ' + pass + ' OK, ' + fail + ' falharam.');
