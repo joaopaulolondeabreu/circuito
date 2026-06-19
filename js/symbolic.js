@@ -109,6 +109,52 @@
   function numericValue(a) { return isZero(a.n) ? 0 : a.n[0].c; }
 
   // ---------------------------------------------------------------- formatação
+  // Normaliza para impressão: limpa frações internas (expoentes negativos),
+  // cancela fatores comuns entre numerador e denominador e ajusta o sinal,
+  // transformando, p.ex., "E/R1 / (1/R1 + 1/R2)" em "E·R2/(R1 + R2)".
+  function minExpMap(poly) {
+    var vars = {};
+    poly.forEach(function (m) { for (var k in m.v) vars[k] = true; });
+    var res = {};
+    Object.keys(vars).forEach(function (k) {
+      var mn = Infinity;
+      poly.forEach(function (m) { var e = m.v[k] || 0; if (e < mn) mn = e; });
+      res[k] = mn;
+    });
+    return res;
+  }
+  function normalizeRat(r) {
+    if (isZero(r.n)) return { n: [], d: ONE };
+    var frac = false;
+    function chk(p) { p.forEach(function (m) { for (var k in m.v) if (!Number.isInteger(m.v[k])) frac = true; }); }
+    chk(r.n); chk(r.d);
+    if (frac) return r; // tem raízes (expoente fracionário): não mexe
+    // 1) multiplica n e d por um monômio que elimina os expoentes negativos
+    var clear = {};
+    function need(p) { p.forEach(function (m) { for (var k in m.v) { var e = m.v[k]; if (e < 0) clear[k] = Math.max(clear[k] || 0, -e); } }); }
+    need(r.n); need(r.d);
+    var n = polyMul(r.n, [{ c: 1, v: clear }]);
+    var d = polyMul(r.d, [{ c: 1, v: clear }]);
+    // 2) cancela o fator monomial comum a numerador e denominador
+    var meN = minExpMap(n), meD = minExpMap(d), inv = { c: 1, v: {} }, any = false, keys = {};
+    Object.keys(meN).forEach(function (k) { keys[k] = 1; });
+    Object.keys(meD).forEach(function (k) { keys[k] = 1; });
+    Object.keys(keys).forEach(function (k) {
+      var a = (k in meN) ? meN[k] : 0, b = (k in meD) ? meD[k] : 0, cc = Math.min(a, b);
+      if (cc > 0) { inv.v[k] = -cc; any = true; }
+    });
+    if (any) { n = polyMul(n, [inv]); d = polyMul(d, [inv]); }
+    // 3) ajusta o sinal: denominador com termo líder negativo → troca os dois
+    if (d.length && d[0].c < 0) { n = polyNeg(n); d = polyNeg(d); }
+    // 4) denominador de um termo só → dobra no numerador (impressão compacta)
+    if (d.length === 1) {
+      var dm = d[0], invd = { c: 1 / dm.c, v: {} };
+      for (var kk in dm.v) invd.v[kk] = -dm.v[kk];
+      n = polyMul(n, [invd]); d = ONE;
+    }
+    return { n: n, d: d };
+  }
+
   function formatFactor(name, e) {
     if (e === 1) return name;
     if (e === 0.5) return '√' + name;
@@ -136,10 +182,19 @@
     }
     return numStr;
   }
+  function degree(m) { var s = 0; for (var k in m.v) s += m.v[k]; return s; }
   function formatPoly(p) {
     if (isZero(p)) return '0';
+    var terms = p.slice().sort(function (a, b) {
+      var ac = Object.keys(a.v).length === 0, bc = Object.keys(b.v).length === 0;
+      if (ac !== bc) return ac ? 1 : -1;          // termo constante por último
+      var da = degree(a), db = degree(b);
+      if (da !== db) return db - da;              // maior grau primeiro
+      var ka = monoKey(a.v), kb = monoKey(b.v);   // depois ordem alfabética
+      return ka < kb ? -1 : (ka > kb ? 1 : 0);
+    });
     var out = '';
-    p.forEach(function (m, i) {
+    terms.forEach(function (m, i) {
       var s = formatMono(m);
       if (i === 0) out += (m.c < 0 ? '−' : '') + s;
       else out += (m.c < 0 ? ' − ' : ' + ') + s;
@@ -147,10 +202,11 @@
     return out;
   }
   function formatRat(r) {
-    if (isOne(r.d)) return formatPoly(r.n);
-    var nP = r.n.length > 1, dP = r.d.length > 1;
-    return (nP ? '(' + formatPoly(r.n) + ')' : formatPoly(r.n)) + ' / ' +
-           (dP ? '(' + formatPoly(r.d) + ')' : formatPoly(r.d));
+    var nr = normalizeRat(r);
+    if (isOne(nr.d)) return formatPoly(nr.n);
+    var nP = nr.n.length > 1, dP = nr.d.length > 1;
+    return (nP ? '(' + formatPoly(nr.n) + ')' : formatPoly(nr.n)) + ' / ' +
+           (dP ? '(' + formatPoly(nr.d) + ')' : formatPoly(nr.d));
   }
 
   // ----------------------------------------------------------------- parser

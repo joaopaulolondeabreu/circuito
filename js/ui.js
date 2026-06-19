@@ -91,12 +91,21 @@
     return map;
   }
 
+  // Um valor é válido se for um número OU uma incógnita (ex.: R1, E).
+  function valOk(raw) {
+    if (raw === '' || raw == null) return false;
+    if (isFinite(CS.parseEng(raw))) return true;
+    try { CS.Sym.parse(String(raw)); return true; } catch (e) { return false; }
+  }
   function isIncomplete(c) {
     var p = c.params || {};
-    if (c.type === 'resistor') return !isFinite(CS.resistanceOf(c));
-    if (c.type === 'source') return !isFinite(CS.parseEng(p.emf));
-    if (c.type === 'capacitor') return !isFinite(CS.parseEng(p.C));
-    if (c.type === 'inductor') return !isFinite(CS.parseEng(p.L));
+    if (c.type === 'resistor') {
+      if (p.mode === 'geom') return !(valOk(p.rho) && valOk(p.L) && valOk(p.A));
+      return !valOk(CS.mainVal(c, 'R'));
+    }
+    if (c.type === 'source') return !valOk(CS.mainVal(c, 'emf'));
+    if (c.type === 'capacitor') return !valOk(CS.mainVal(c, 'C'));
+    if (c.type === 'inductor') return !valOk(CS.mainVal(c, 'L'));
     return false;
   }
 
@@ -169,31 +178,34 @@
       });
     });
 
-    // potencial em cada nó
-    var nm = nodes();
-    Object.keys(nm).forEach(function (k) {
-      var n = nm[k];
-      var v = res.nodeV[k];
-      if (v === undefined) return;
-      addText(R, n.x + 9, n.y - 8, CS.fmt(v, 'V'), 'result-text', 'start',
-        { style: 'paint-order:stroke;stroke:var(--bg);stroke-width:3px;fill:var(--text-faint);font-size:10px' });
-    });
+    // potencial em cada nó (omitido no modo simbólico para não poluir o quadro)
+    if (!res.symbolic) {
+      var nm = nodes();
+      Object.keys(nm).forEach(function (k) {
+        var n = nm[k];
+        var v = res.nodeV[k];
+        if (v === undefined) return;
+        addText(R, n.x + 9, n.y - 8, CS.scalarFmt(v, 'V'), 'result-text', 'start',
+          { style: 'paint-order:stroke;stroke:var(--bg);stroke-width:3px;fill:var(--text-faint);font-size:10px' });
+      });
+    }
   }
 
   function resultLines(c, info, res) {
-    var f = CS.fmt;
+    var f = function (x, u) { return CS.scalarFmt(x, u, true); };   // magnitude (p/ números)
+    var fs = function (x, u) { return CS.scalarFmt(x, u, false); };  // com sinal
     switch (c.type) {
       case 'resistor':
         if (info.current == null) return [];
-        return ['I = ' + f(Math.abs(info.current), 'A'), 'U = ' + f(Math.abs(info.voltage), 'V')];
+        return ['I = ' + f(info.current, 'A'), 'U = ' + f(info.voltage, 'V')];
       case 'source':
-        return ['I = ' + f(Math.abs(info.current), 'A'), 'U = ' + f(info.voltage, 'V')];
+        return ['I = ' + f(info.current, 'A'), 'U = ' + fs(info.voltage, 'V')];
       case 'capacitor': {
-        var l = ['U = ' + f(info.voltage, 'V')];
-        if (info.charge != null) l.push('Q = ' + f(info.charge, 'C'));
+        var l = ['U = ' + fs(info.voltage, 'V')];
+        if (info.charge != null) l.push('Q = ' + fs(info.charge, 'C'));
         return l;
       }
-      case 'inductor': return ['I = ' + f(info.current, 'A')];
+      case 'inductor': return ['I = ' + fs(info.current, 'A')];
       case 'voltmeter': return ['V: ' + f(info.reading, 'V')];
       case 'ammeter': return ['A: ' + f(info.reading, 'A')];
       case 'galvanometer': return ['G: ' + f(info.reading, 'A')];
@@ -402,8 +414,8 @@
       }
       var val = p[f[0]];
       html += '<div class="field-group"><label>' + f[1] + '</label>' +
-        '<input type="text" data-key="' + f[0] + '" value="' + esc(val == null ? '' : String(val)) + '">' +
-        '<div class="unit-suffix">unidade: ' + f[2] + ' &nbsp;·&nbsp; pode usar k, m, µ, n... (ex.: 1u = 1µ, 4k7 = 4700)</div></div>';
+        '<input type="text" data-key="' + f[0] + '" value="' + esc(val == null ? '' : String(val)) + '" autocomplete="off" spellcheck="false">' +
+        '<div class="unit-suffix">unidade: ' + f[2] + ' &nbsp;·&nbsp; número (4k7, 1u) <b>ou incógnita</b> (ex.: R1, E)</div></div>';
     });
 
     // R calculado para fio geométrico
@@ -455,50 +467,52 @@
   }
 
   function compResultCard(c, info, res) {
-    var f = CS.fmt, rows = '';
+    var fa = function (x, u) { return CS.scalarFmt(x, u, true); };   // magnitude
+    var fs = function (x, u) { return CS.scalarFmt(x, u, false); };  // com sinal
+    var rows = '';
     function row(k, v, muted) { rows += '<div class="result-row' + (muted ? ' muted' : '') + '"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>'; }
     switch (c.type) {
       case 'resistor':
         if (info.current == null) { row('Fio de R≈0', '—'); break; }
-        row('Corrente I', f(Math.abs(info.current), 'A'));
-        row('Tensão U', f(Math.abs(info.voltage), 'V'));
-        row('Potência dissipada', f(Math.abs(info.power), 'W'));
-        row('Resistência R', f(info.R, 'Ω'), true);
+        row('Corrente I', fa(info.current, 'A'));
+        row('Tensão U', fa(info.voltage, 'V'));
+        row('Potência dissipada', fa(info.power, 'W'));
+        row('Resistência R', fs(info.R, 'Ω'), true);
         break;
       case 'source':
         row('Operando como', info.mode);
-        row('Corrente I', f(Math.abs(info.current), 'A'));
-        row('Tensão nos terminais U', f(info.voltage, 'V'));
-        row('Perda interna (r·I²)', f(info.internalLoss, 'W'));
-        row('Potência da FEM (ε·I)', f(Math.abs(info.emfPower), 'W'), true);
+        row('Corrente I', fa(info.current, 'A'));
+        row('Tensão nos terminais U', fs(info.voltage, 'V'));
+        row('Perda interna (r·I²)', fs(info.internalLoss, 'W'));
+        row('Potência da FEM (ε·I)', fa(info.emfPower, 'W'), true);
         break;
       case 'capacitor':
-        row('Tensão U (regime)', f(info.voltage, 'V'));
-        if (info.charge != null) row('Carga Q', f(info.charge, 'C'));
-        if (info.energy != null) row('Energia', f(info.energy, 'J'));
+        row('Tensão U (regime)', fs(info.voltage, 'V'));
+        if (info.charge != null) row('Carga Q', fs(info.charge, 'C'));
+        if (info.energy != null) row('Energia', fs(info.energy, 'J'));
         var tc = res.transient && res.transient.capacitors.find(function (x) { return x.id === c.id; });
         if (tc && tc.tau) {
-          row('Const. de tempo τ = R·C', f(tc.tau, 's'), true);
-          row('Carga final Q∞', f(tc.Qfinal, 'C'), true);
-          row('Corrente inicial i₀', f(tc.i0, 'A'), true);
+          row('Const. de tempo τ = R·C', fs(tc.tau, 's'), true);
+          row('Carga final Q∞', fs(tc.Qfinal, 'C'), true);
+          row('Corrente inicial i₀', fs(tc.i0, 'A'), true);
           rows += '<div class="result-note">Carga: q(t) = Q∞·(1 − e^(−t/τ)) se começa descarregado.<br>' +
-            'Tensão: U(t) = U∞ + (U₀ − U∞)·e^(−t/τ). Praticamente completo em 5τ ≈ ' + f(tc.t99, 's') + '.</div>';
+            'Tensão: U(t) = U∞ + (U₀ − U∞)·e^(−t/τ). Praticamente completo em 5τ ≈ ' + fs(tc.t99, 's') + '.</div>';
         }
         break;
       case 'inductor':
-        row('Corrente I (regime)', f(info.current, 'A'));
-        if (info.energy != null) row('Energia', f(info.energy, 'J'));
+        row('Corrente I (regime)', fs(info.current, 'A'));
+        if (info.energy != null) row('Energia', fs(info.energy, 'J'));
         var ti = res.transient && res.transient.inductors.find(function (x) { return x.id === c.id; });
         if (ti && ti.tau) {
-          row('Const. de tempo τ = L/R', f(ti.tau, 's'), true);
+          row('Const. de tempo τ = L/R', fs(ti.tau, 's'), true);
           rows += '<div class="result-note">i(t) = i∞ + (i₀ − i∞)·e^(−t/τ).</div>';
         }
         break;
-      case 'voltmeter': row('Leitura', f(info.reading, 'V')); break;
-      case 'ammeter': row('Leitura', f(info.reading, 'A')); break;
+      case 'voltmeter': row('Leitura', fa(info.reading, 'V')); break;
+      case 'ammeter': row('Leitura', fa(info.reading, 'A')); break;
       case 'galvanometer':
-        row('Leitura', f(info.reading, 'A'));
-        if (info.Rint) row('Resistência bobina', f(info.Rint, 'Ω'), true);
+        row('Leitura', fa(info.reading, 'A'));
+        if (info.Rint != null) row('Resistência bobina', fs(info.Rint, 'Ω'), true);
         break;
       default: row('—', '—');
     }
@@ -530,18 +544,22 @@
       bar.innerHTML = '<span class="empty">Monte seu circuito e clique em "Resolver circuito".</span>';
       return;
     }
-    var s = S.results.summary, f = CS.fmt, html = '';
+    var s = S.results.summary, html = '';
+    function fa(x, u) { return CS.scalarFmt(x, u, true); }
+    function fs(x, u) { return CS.scalarFmt(x, u, false); }
+    function hasR(x) { return x != null && (typeof x !== 'number' || isFinite(x)); }
     function stat(label, val) { html += '<div class="stat"><span class="label">' + label + '</span><span class="value">' + val + '</span></div>'; }
+    if (S.results.symbolic) stat('Modo', 'algébrico (com incógnitas)');
     if (s.mainCurrent != null) {
-      stat('Corrente principal', f(s.mainCurrent, 'A'));
-      stat('Tensão nos terminais', f(s.terminalVoltage, 'V'));
-      if (isFinite(s.externalResistance)) stat('Resist. externa equiv.', f(s.externalResistance, 'Ω'));
+      stat('Corrente principal', fa(s.mainCurrent, 'A'));
+      stat('Tensão nos terminais', fs(s.terminalVoltage, 'V'));
+      if (hasR(s.externalResistance)) stat('Resist. externa equiv.', fs(s.externalResistance, 'Ω'));
     }
-    stat('Potência total dissipada', f(s.totalDissipated, 'W'));
+    stat('Potência total dissipada', fs(s.totalDissipated, 'W'));
     var nc = S.components.filter(function (c) { return c.type === 'capacitor'; }).length;
     if (nc) {
       var tc = S.results.transient.capacitors[0];
-      if (tc && tc.tau) stat('τ (1º capacitor)', f(tc.tau, 's'));
+      if (tc && tc.tau) stat('τ (1º capacitor)', fs(tc.tau, 's'));
     }
     bar.innerHTML = html;
   }

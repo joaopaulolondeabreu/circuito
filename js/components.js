@@ -169,17 +169,24 @@
   function draw(c, len) { return TYPES[c.type].draw(c, len); }
   function glyph(c) { var t = TYPES[c.type]; return t.glyph ? t.glyph(c) : null; }
 
+  // Mostra um número formatado, ou a própria incógnita (ex.: "R1"), ou vazio.
+  function valLabel(raw, unit) {
+    if (raw === '' || raw == null) return '';
+    var n = parseEng(raw);
+    if (isFinite(n)) return fmt(n, unit);
+    return String(raw).trim();
+  }
   // Rótulo curto exibido junto ao componente (nome ou valor principal).
   function shortLabel(c) {
     var p = c.params || {};
     if (p.label) return p.label;
     switch (c.type) {
       case 'resistor':
-        if (p.mode === 'geom') return fmt(CS.resistanceOf(c), 'Ω');
-        return fmt(CS.parseEng(p.R), 'Ω');
-      case 'source': return fmt(CS.parseEng(p.emf), 'V');
-      case 'capacitor': return fmt(CS.parseEng(p.C), 'F');
-      case 'inductor': return fmt(CS.parseEng(p.L), 'H');
+        if (p.mode === 'geom') { var R = CS.resistanceOf(c); return isFinite(R) ? fmt(R, 'Ω') : 'ρL/A'; }
+        return valLabel(p.R, 'Ω');
+      case 'source': return valLabel(p.emf, 'V');
+      case 'capacitor': return valLabel(p.C, 'F');
+      case 'inductor': return valLabel(p.L, 'H');
       case 'wireIdeal': return '';
       default: return '';
     }

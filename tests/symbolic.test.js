@@ -65,6 +65,45 @@ var rNum = S.div(S.mul(S.num(1.7e-8), S.num(100)), S.num(1e-6));
 eq('R numérico é número', S.isNumeric(rNum), true);
 eq('R numérico = 1.7', fmt(rNum), '1.7');
 
+// ---- circuitos RESOLVIDOS simbolicamente -----------------------------------
+var CS = globalThis.CS;
+function solveProbe(name, comps, probe, want) {
+  var r = CS.solveCircuit({ components: comps });
+  eq('circuito ' + name, probe(r), want);
+}
+// Série: E e dois R → I = E/(2R)
+solveProbe('série I', [
+  { id: 'S', type: 'source', a: 'A', b: 'B', params: { emf: 'E', r: '0' } },
+  { id: 'R1', type: 'resistor', a: 'B', b: 'C', params: { mode: 'direct', R: 'R' } },
+  { id: 'R2', type: 'resistor', a: 'C', b: 'A', params: { mode: 'direct', R: 'R' } }
+], function (r) { return CS.Sym.format(r.comp.S.current); }, '0.5·E/R');
+// Divisor de tensão → U(R2) = E·R2/(R1+R2)
+solveProbe('divisor U(R2)', [
+  { id: 'S', type: 'source', a: 'A', b: 'B', params: { emf: 'E', r: '0' } },
+  { id: 'R1', type: 'resistor', a: 'B', b: 'C', params: { mode: 'direct', R: 'R1' } },
+  { id: 'R2', type: 'resistor', a: 'C', b: 'A', params: { mode: 'direct', R: 'R2' } }
+], function (r) { return CS.Sym.format(r.comp.R2.voltage); }, 'E·R2 / (R1 + R2)');
+// Gerador real → I = E/(R+r)
+solveProbe('gerador real I', [
+  { id: 'S', type: 'source', a: 'A', b: 'B', params: { emf: 'E', r: 'r' } },
+  { id: 'R', type: 'resistor', a: 'B', b: 'A', params: { mode: 'direct', R: 'R' } }
+], function (r) { return CS.Sym.format(r.comp.S.current); }, 'E / (R + r)');
+// Caso do usuário: valor vazio, rótulo "R"/"E" usado como incógnita
+(function () {
+  var r = CS.solveCircuit({ components: [
+    { id: 'S', type: 'source', a: 'A', b: 'B', params: { emf: '', label: 'E', r: '0' } },
+    { id: 'R1', type: 'resistor', a: 'B', b: 'A', params: { mode: 'direct', R: '', label: 'R' } }
+  ]});
+  eq('rótulo vira incógnita (ok)', r.ok, true);
+  eq('rótulo vira incógnita (simbólico)', r.symbolic, true);
+  eq('rótulo vira incógnita (I=E/R)', CS.Sym.format(r.comp.R1.current), 'E/R');
+})();
+// Misto número + incógnita
+solveProbe('misto E=12,R', [
+  { id: 'S', type: 'source', a: 'A', b: 'B', params: { emf: '12', r: '0' } },
+  { id: 'R', type: 'resistor', a: 'B', b: 'A', params: { mode: 'direct', R: 'R' } }
+], function (r) { return CS.Sym.format(r.comp.R.current); }, '12/R');
+
 console.log('\n=====================================');
 console.log('  Simbólico: ' + pass + ' OK, ' + fail + ' falharam.');
 console.log('=====================================');

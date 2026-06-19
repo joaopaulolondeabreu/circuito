@@ -15,6 +15,9 @@ nada nem pagar nada) e é publicado de graça pelo **GitHub Pages**.
 - Calcula automaticamente: **diferenças de potencial, correntes, potências,
   resistência equivalente, força eletromotriz, carga e energia de capacitores,
   constante de tempo τ (carga/descarga)** e muito mais.
+- **Trabalha com incógnitas:** você pode usar letras como valor (ex.: `R`, `E`,
+  `R1`) tanto na calculadora quanto no próprio circuito, e os resultados saem
+  **em função delas** (ex.: dois `R` em série com `E` → corrente `E/2R`).
 - **Calculadora avulsa**: quando a questão dá só alguns valores soltos de um
   componente, você digita o que sabe e ela deduz o resto — mostrando as fórmulas.
 
