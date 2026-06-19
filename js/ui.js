@@ -579,6 +579,20 @@
   // ========================================================================
   //  INICIALIZAÇÃO
   // ========================================================================
+  // Circuito de demonstração: gerador 12 V alimentando R1 em série com
+  // (R2 // R3). Bons números: I_total = 3 A, U_paralelo = 6 V.
+  function exampleCircuit() {
+    return [
+      { id: 'ex1', type: 'source', flipped: false, params: { kind: 'gerador', label: 'ε', emf: 12, r: 0 }, a: { x: 220, y: 420 }, b: { x: 220, y: 220 } },
+      { id: 'ex2', type: 'resistor', flipped: false, params: { mode: 'direct', label: 'R1', R: 2 }, a: { x: 220, y: 220 }, b: { x: 420, y: 220 } },
+      { id: 'ex3', type: 'resistor', flipped: false, params: { mode: 'direct', label: 'R2', R: 6 }, a: { x: 420, y: 220 }, b: { x: 420, y: 420 } },
+      { id: 'ex4', type: 'wireIdeal', flipped: false, params: {}, a: { x: 420, y: 220 }, b: { x: 600, y: 220 } },
+      { id: 'ex5', type: 'resistor', flipped: false, params: { mode: 'direct', label: 'R3', R: 3 }, a: { x: 600, y: 220 }, b: { x: 600, y: 420 } },
+      { id: 'ex6', type: 'wireIdeal', flipped: false, params: {}, a: { x: 600, y: 420 }, b: { x: 420, y: 420 } },
+      { id: 'ex7', type: 'wireIdeal', flipped: false, params: {}, a: { x: 420, y: 420 }, b: { x: 220, y: 420 } }
+    ];
+  }
+
   function init() {
     if (S._inited) return; // evita inicializar duas vezes
     S._inited = true;
@@ -607,6 +621,15 @@
     document.getElementById('btnClear').addEventListener('click', clearAll);
     document.getElementById('btnSave').addEventListener('click', save);
     document.getElementById('fileOpen').addEventListener('change', function () { if (this.files[0]) open(this.files[0]); this.value = ''; });
+    var btnEx = document.getElementById('btnExample');
+    if (btnEx) btnEx.addEventListener('click', function () {
+      pushHistory();
+      S.components = exampleCircuit();
+      S.counter += 20; S.selectedId = null;
+      setSelectMode();
+      solve();
+      toast('Circuito de exemplo carregado e resolvido. Explore os valores!', 'success');
+    });
 
     document.addEventListener('keydown', function (e) {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;

@@ -6,7 +6,13 @@
  */
 var fs = require('fs');
 var path = require('path');
-var JSDOM = require('jsdom').JSDOM;
+var JSDOM;
+try { JSDOM = require('jsdom').JSDOM; }
+catch (e) {
+  console.log('• Testes de interface PULADOS (jsdom não instalado).');
+  console.log('  Para rodá-los: npm install --no-save jsdom');
+  process.exit(0);
+}
 
 var root = path.join(__dirname, '..');
 var html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
