@@ -11,6 +11,30 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
+<!-- Tela inicial: escolha do dispositivo -->
+<div id="deviceLanding" class="landing">
+  <div class="landing-box">
+    <div class="landing-logo">⏚</div>
+    <h1>Simulador de Circuitos</h1>
+    <p class="landing-sub">Estudo de circuitos elétricos para o ITA</p>
+    <p class="landing-q">Como você está acessando agora?</p>
+    <div class="landing-choices">
+      <button class="landing-card" data-view="desktop">
+        <span class="lc-ico">💻</span>
+        <span class="lc-t">Computador</span>
+        <span class="lc-d">Tela grande, mouse e teclado</span>
+      </button>
+      <button class="landing-card" data-view="mobile">
+        <span class="lc-ico">📱</span>
+        <span class="lc-t">Celular / Tablet</span>
+        <span class="lc-d">Tela sensível ao toque</span>
+      </button>
+    </div>
+    <p class="landing-note" id="landingNote"></p>
+  </div>
+</div>
+
 <div id="app">
 
   <header>
@@ -26,6 +50,7 @@
       <button class="btn" id="btnCalc">🧮 Calculadora avulsa</button>
       <button class="btn" id="btnHelp">❓ Como usar</button>
       <button class="btn" id="btnToggleInspector" style="display:none;">Inspetor</button>
+      <button class="btn" id="btnDevice" title="Trocar entre computador e celular">💻/📱</button>
     </div>
   </header>
 
@@ -93,7 +118,7 @@
         <label class="btn file-btn">📂 Abrir<input type="file" id="fileOpen" accept=".json" hidden></label>
       </div>
       <div class="canvas-scroll" id="canvasScroll">
-        <svg id="svgCanvas" width="2600" height="1500" xmlns="http://www.w3.org/2000/svg">
+        <svg id="svgCanvas" width="2600" height="1500" viewBox="0 0 2600 1500" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="gridSmall" width="20" height="20" patternUnits="userSpaceOnUse">
               <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--grid-line)" stroke-width="1"/>
@@ -113,10 +138,16 @@
         <div id="hintBar"><span class="dot"></span><span id="hintText"></span></div>
         <div id="toast"></div>
       </div>
+      <div class="zoom-controls" id="zoomControls">
+        <button class="zoom-btn" id="zoomIn" title="Aproximar">+</button>
+        <button class="zoom-btn" id="zoomOut" title="Afastar">−</button>
+        <button class="zoom-btn" id="zoomFit" title="Ajustar à tela">⊡</button>
+      </div>
       <div class="summary-bar" id="summaryBar"><span class="empty">Monte seu circuito e clique em "Resolver circuito".</span></div>
     </main>
 
     <aside class="inspector" id="inspector">
+      <button class="sheet-close" id="inspClose" aria-label="Fechar">✕</button>
       <h2>Inspetor</h2>
       <div id="inspectorEmpty">Clique em um componente já posicionado no quadro para ver e editar seus dados aqui.<br><br><b>Dica:</b> comece escolhendo um componente na barra à esquerda e clique em dois pontos do quadro para posicioná-lo.</div>
       <div id="inspectorContent" style="display:none;"></div>

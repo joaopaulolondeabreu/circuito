@@ -21,6 +21,8 @@
     dragEnded: false
   };
   var D = {}; // referências do DOM
+  var zoom = 1; // fator de zoom do quadro
+  function isMobile() { return document.body.classList.contains('view-mobile'); }
 
   // ---- utilidades ---------------------------------------------------------
   function svgEl(tag, attrs, inner) {
@@ -244,6 +246,45 @@
   }
 
   // ========================================================================
+  //  ZOOM E MODO DE VISUALIZAÇÃO (computador / celular)
+  // ========================================================================
+  function setZoom(z) {
+    zoom = Math.max(0.3, Math.min(3, z));
+    if (D.svg) { D.svg.setAttribute('width', (2600 * zoom).toFixed(1)); D.svg.setAttribute('height', (1500 * zoom).toFixed(1)); }
+  }
+  function zoomBy(factor) {
+    var sc = D.canvasScroll;
+    if (!sc) { setZoom(zoom * factor); return; }
+    var ux = (sc.scrollLeft + sc.clientWidth / 2) / zoom;
+    var uy = (sc.scrollTop + sc.clientHeight / 2) / zoom;
+    setZoom(zoom * factor);
+    sc.scrollLeft = ux * zoom - sc.clientWidth / 2;
+    sc.scrollTop = uy * zoom - sc.clientHeight / 2;
+  }
+  function fitView() {
+    var sc = D.canvasScroll; if (!sc) return;
+    var cw = sc.clientWidth || 600, ch = sc.clientHeight || 400;
+    if (!S.components.length) { setZoom(isMobile() ? 1.2 : 1); sc.scrollLeft = 0; sc.scrollTop = 0; return; }
+    var xs = [], ys = [];
+    S.components.forEach(function (c) { xs.push(c.a.x, c.b.x); ys.push(c.a.y, c.b.y); });
+    var pad = 80;
+    var minX = Math.min.apply(null, xs) - pad, maxX = Math.max.apply(null, xs) + pad;
+    var minY = Math.min.apply(null, ys) - pad, maxY = Math.max.apply(null, ys) + pad;
+    var w = Math.max(1, maxX - minX), h = Math.max(1, maxY - minY);
+    var z = Math.max(0.3, Math.min(2.5, Math.min(cw / w, ch / h)));
+    setZoom(z);
+    sc.scrollLeft = minX * z - (cw - w * z) / 2;
+    sc.scrollTop = minY * z - (ch - h * z) / 2;
+  }
+  // Chamado pela tela inicial ao escolher computador/celular.
+  function setView(view) {
+    D.inspector && D.inspector.classList.remove('open');
+    if (view === 'mobile') { setTimeout(fitView, 80); }
+    else { setZoom(1); }
+    renderAll();
+  }
+
+  // ========================================================================
   //  INTERAÇÃO
   // ========================================================================
   function onCanvasClick(evt) {
@@ -379,6 +420,7 @@
       D.inspectorContent.style.display = 'none';
       D.inspectorContent.innerHTML = '';
       D.btnDeleteSelected.disabled = true;
+      if (D.inspector) D.inspector.classList.remove('open'); // fecha a gaveta no celular
       return;
     }
     D.inspectorEmpty.style.display = 'none';
@@ -464,6 +506,7 @@
     if (flip) flip.addEventListener('click', function () {
       c.flipped = !c.flipped; clearResults(); renderAll(); renderInspector();
     });
+    if (isMobile()) D.inspector.classList.add('open'); // abre a gaveta no celular
   }
 
   function compResultCard(c, info, res) {
@@ -615,7 +658,8 @@
     if (S._inited) return; // evita inicializar duas vezes
     S._inited = true;
     ['componentsLayer', 'labelsLayer', 'resultsLayer', 'nodesLayer', 'wiresPreviewLayer',
-     'inspectorEmpty', 'inspectorContent', 'summaryBar', 'hintBar', 'hintText', 'toast', 'btnDeleteSelected']
+     'inspectorEmpty', 'inspectorContent', 'summaryBar', 'hintBar', 'hintText', 'toast',
+     'btnDeleteSelected', 'canvasScroll', 'inspector']
       .forEach(function (id) { D[id] = document.getElementById(id); });
     D.svg = document.getElementById('svgCanvas');
 
@@ -639,6 +683,11 @@
     document.getElementById('btnClear').addEventListener('click', clearAll);
     document.getElementById('btnSave').addEventListener('click', save);
     document.getElementById('fileOpen').addEventListener('change', function () { if (this.files[0]) open(this.files[0]); this.value = ''; });
+    // zoom e fechar gaveta (celular)
+    var zi = document.getElementById('zoomIn'); if (zi) zi.addEventListener('click', function () { zoomBy(1.25); });
+    var zo = document.getElementById('zoomOut'); if (zo) zo.addEventListener('click', function () { zoomBy(0.8); });
+    var zf = document.getElementById('zoomFit'); if (zf) zf.addEventListener('click', fitView);
+    var ic = document.getElementById('inspClose'); if (ic) ic.addEventListener('click', function () { S.selectedId = null; renderAll(); renderInspector(); });
     var btnEx = document.getElementById('btnExample');
     if (btnEx) btnEx.addEventListener('click', function () {
       pushHistory();
@@ -659,6 +708,9 @@
     renderAll(); updateSummary();
   }
 
-  CS.UI = { init: init, _state: S, loadExample: function (comps) { S.components = comps; S.counter += 50; clearResults(); renderAll(); renderInspector(); } };
+  CS.UI = {
+    init: init, _state: S, setView: setView, fitView: fitView,
+    loadExample: function (comps) { S.components = comps; S.counter += 50; clearResults(); renderAll(); renderInspector(); }
+  };
 
 })(typeof window !== 'undefined' ? window : globalThis);

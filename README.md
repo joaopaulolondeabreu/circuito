@@ -25,6 +25,12 @@ A física por trás é a **Análise Nodal Modificada**, que aplica as Leis de Oh
 de Kirchhoff de forma geral, resolvendo um sistema de equações para qualquer
 circuito.
 
+**Funciona no computador e no celular:** ao abrir, o site pergunta se você está
+no computador ou no celular. No celular há um layout próprio para toque —
+paleta de componentes em faixa horizontal, inspetor em "gaveta" que sobe de
+baixo, controles de zoom e arrastar o quadro com o dedo. Dá para trocar de modo
+a qualquer momento no botão 💻/📱.
+
 ## Como usar (resumo)
 
 1. Escolha um componente na barra da esquerda.
