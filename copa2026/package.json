@@ -1,0 +1,10 @@
+{
+  "name": "copa2026-simulador",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Simulador de palpites da Copa do Mundo FIFA 2026",
+  "scripts": {
+    "test": "node tests/logica.test.js"
+  }
+}

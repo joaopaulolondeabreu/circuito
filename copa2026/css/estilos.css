@@ -1,0 +1,560 @@
+:root {
+  --azul-claro: #eaf4ff;
+  --azul-medio: #cfe7ff;
+  --azul-principal: #2f80ed;
+  --azul-escuro: #1c5fbf;
+  --branco: #ffffff;
+  --texto: #1b2733;
+  --texto-apoio: #62768a;
+  --borda: #d8e8fb;
+  --verde-classificado: #e4f7ee;
+  --vermelho-aviso: #d64545;
+  --sombra: 0 4px 16px rgba(47, 128, 237, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(180deg, var(--azul-claro) 0%, var(--branco) 320px);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+p {
+  margin: 0;
+}
+
+.texto-apoio {
+  color: var(--texto-apoio);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Cabeçalho e navegação */
+
+.cabecalho-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 20px 0;
+  text-align: center;
+}
+
+.cabecalho-app-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titulo-app {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--azul-escuro);
+}
+
+.subtitulo-app {
+  margin: 0;
+  color: var(--texto-apoio);
+}
+
+.navegacao {
+  display: flex;
+  gap: 8px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  padding: 6px;
+  box-shadow: var(--sombra);
+}
+
+.aba {
+  border: none;
+  background: transparent;
+  color: var(--texto-apoio);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.aba:hover {
+  color: var(--azul-escuro);
+}
+
+.aba-ativa {
+  background: var(--azul-principal);
+  color: var(--branco);
+}
+
+.conteudo-app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rodape-app {
+  text-align: center;
+  padding: 20px;
+  color: var(--texto-apoio);
+  font-size: 0.85rem;
+}
+
+/* Cabeçalho de seção (topo de cada tela) */
+
+.cabecalho-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cabecalho-secao h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--texto);
+}
+
+.linha-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Cartões */
+
+.cartao {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--sombra);
+}
+
+.cartao h3 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  color: var(--azul-escuro);
+}
+
+/* Listas de jogos */
+
+.lista-jogos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jogo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--azul-claro);
+}
+
+.jogo-fixo {
+  background: var(--branco);
+  border: 1px dashed var(--borda);
+}
+
+.jogo-em-edicao {
+  background: var(--azul-medio);
+}
+
+.jogo-resumo {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+}
+
+.jogo-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--texto-apoio);
+}
+
+.jogo-data,
+.jogo-cidade {
+  white-space: nowrap;
+}
+
+.etiqueta-oficial {
+  background: var(--azul-principal);
+  color: var(--branco);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.jogo-confronto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Times e bandeiras */
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bandeira {
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.bandeira-vazia {
+  display: inline-block;
+  width: 36px;
+  height: 25px;
+  border-radius: 3px;
+  background: var(--borda);
+}
+
+.nome-time {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time-indefinido .nome-indefinido {
+  color: var(--texto-apoio);
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Placares */
+
+.placar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.placar-final {
+  font-size: 1.1rem;
+  font-weight: 700;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.placar-editavel {
+  gap: 6px;
+}
+
+.input-placar {
+  width: 44px;
+  height: 40px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--branco);
+  color: var(--texto);
+}
+
+.input-placar:focus {
+  outline: none;
+  border-color: var(--azul-principal);
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.18);
+}
+
+.x {
+  color: var(--texto-apoio);
+  font-weight: 600;
+}
+
+.x-desabilitado {
+  opacity: 0.4;
+}
+
+/* Tabela de classificação */
+
+.tabela-grupo-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.tabela-grupo {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.tabela-grupo th,
+.tabela-grupo td {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--borda);
+}
+
+.tabela-grupo th {
+  color: var(--texto-apoio);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.col-selecao {
+  text-align: left;
+}
+
+.linha-classificado {
+  background: var(--verde-classificado);
+}
+
+/* Botões */
+
+.botao-azul {
+  background: var(--azul-principal);
+  color: var(--branco);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.botao-azul:hover {
+  background: var(--azul-escuro);
+}
+
+.botao-azul:active {
+  transform: scale(0.98);
+}
+
+.botao-grande {
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.botao-pequeno {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.botao-editar {
+  align-self: flex-start;
+}
+
+.botao-texto {
+  background: transparent;
+  border: none;
+  color: var(--azul-principal);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 6px 4px;
+  text-decoration: underline;
+}
+
+.botao-texto:hover {
+  color: var(--azul-escuro);
+}
+
+/* Barra de progresso */
+
+.progresso-linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.barra-progresso {
+  flex: 1;
+  height: 8px;
+  background: var(--azul-medio);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra-progresso-preenchida {
+  height: 100%;
+  background: var(--azul-principal);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.progresso-texto {
+  font-size: 0.8rem;
+  color: var(--texto-apoio);
+  white-space: nowrap;
+}
+
+/* Grupos */
+
+.grupo-simulacao,
+.grupo-resumo,
+.grupo-resultados {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mata-mata */
+
+.fase-mata-mata h3 {
+  text-align: center;
+}
+
+.grade-mata-mata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.confronto-mata-mata {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--azul-claro);
+  border: 1px solid var(--borda);
+}
+
+.confronto-final {
+  background: linear-gradient(135deg, var(--azul-medio), var(--azul-claro));
+  border-color: var(--azul-principal);
+}
+
+.confronto-terceiro {
+  border-style: dashed;
+}
+
+.area-penaltis {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linha-penaltis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.rotulo-penaltis {
+  color: var(--texto-apoio);
+  font-size: 0.8rem;
+}
+
+.aviso-penaltis {
+  color: var(--vermelho-aviso);
+  font-size: 0.78rem;
+}
+
+/* Celebração do campeão */
+
+.overlay-campeao {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(28, 95, 191, 0.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 1000;
+  padding: 20px;
+  text-align: center;
+}
+
+.overlay-campeao.ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bandeira-campea {
+  width: 80px;
+  border-radius: 6px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: scale(0.2);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.overlay-campeao.ativo .bandeira-campea {
+  transform: scale(1);
+}
+
+.titulo-campeao {
+  color: var(--branco);
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.subtitulo-campeao {
+  color: var(--azul-claro);
+  font-size: 1rem;
+  max-width: 420px;
+}
+
+.botao-fechar-celebracao {
+  margin-top: 12px;
+  background: var(--branco);
+  color: var(--azul-escuro);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botao-fechar-celebracao:hover {
+  background: var(--azul-claro);
+}
+
+/* Confete */
+
+.tela-confete {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  .jogo-confronto {
+    flex-wrap: wrap;
+  }
+
+  .titulo-app {
+    font-size: 1.4rem;
+  }
+}
